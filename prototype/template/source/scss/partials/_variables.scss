@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css?family=Crafty+Girls');
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,300,700);
+
+$font-primary: 'Crafty Girls', cursive;
+$font-secondary: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+
+$color-1: #FCFFF5;
+$color-2: #D1DBBD;
+$color-3: #91AA9D;
+$color-4: #3E606F;
+$color-5: #193441;
+
+$color-palette-top: $color-3 $color-5 $color-4 $color-1 $color-2;
+$color-palette-bottom: $color-2 $color-1 $color-3 $color-4 $color-5;
+
+$palette-height: 10px;

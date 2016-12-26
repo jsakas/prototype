@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width" />
+  <link rel="icon" type="image/png" href="{{ asset('/images/prototype-icon.png') }}">
+  <title>{{ config.get('name', 'Prototype Project') }}</title>
+  <link rel="stylesheet" href="{{ asset('/css/base.css', True) }}" />
+</head>
+
+<body>
+  {% block content %} {% endblock %}
+  <div class="palette-top">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+  <div class="palette-bottom">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+</body>
+
+</html>

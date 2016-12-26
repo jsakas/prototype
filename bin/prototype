@@ -1,0 +1,73 @@
+#!/usr/bin/env python
+
+import argparse
+
+from prototype import InitializeProject
+from prototype.core import Prototype
+from prototype.translations import TranslationManager
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-i', '--init', 
+        nargs=1,
+        metavar=('<project-name>'),
+        help='initialize a new project',
+        default='',
+    )
+
+    parser.add_argument('-r', '--runserver', 
+        help='run the webserver',
+        action='store_true',
+    )
+    
+    parser.add_argument('-p', '--port',
+        nargs=1,
+        metavar=('<port>'),
+        help='specify the port for the development server', 
+        type=int,
+    )
+
+    parser.add_argument('-b', '--build', 
+        help='save static files to the build directory',
+        action='store_true'
+    )
+
+    parser.add_argument('-g', '--gettext',
+        help='extract and compile translations from source files',
+        action='store_true'
+    )
+
+    args = parser.parse_args()
+
+    if args.init:
+        try:
+            InitializeProject(args.init[0])
+        except ValueError as e:
+            exit('No project name specified. Use `prototype -i <project-name>`.')
+    else:
+        try:
+            prototype = Prototype()
+        except Exception as e:
+            print('Fatal Error: Failed to create Prototype instance. Has your project been initialized?\n')
+            parser.print_help()
+            exit()
+        try:
+            translation_manager = TranslationManager()
+        except Exception as e:
+            print('Fatal Error: Failed to create TranslationManager instance. Has your project been initialized?\n')
+            parser.print_help()
+            exit()
+
+        if args.runserver:
+            if args.port:
+                prototype.runserver(args.port)
+            else:
+                prototype.runserver()
+        elif args.build:
+            prototype.build()
+        elif args.gettext:
+            translation_manager.run()
+        else:
+            prototype.runserver()   
