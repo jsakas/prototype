@@ -1,0 +1,12 @@
+{
+    "name": "Protoype",
+    "description": "A static site.",
+    "version": "1.0.0",
+    "copyright_holder": "Fistname Lastname",
+    "author": "Firstname Lastname <first.last@domain.com>",
+    "languages": ["en_US", "fr"],
+    "template_extensions": ["html", "txt"],
+    "data": "data/",
+    "translations": "translations/",
+    "translations_key": "prototype"
+}

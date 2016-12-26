@@ -1,0 +1,8 @@
+{% extends "templates/base.html" %} {% block content %}
+<div class="intro">
+  <div class="intro-title">
+    <img src="{{ asset('/images/prototype-icon.svg') }}" class="icon" />
+    <h2>{{ data['sample.json']['description'] }}</h2>
+  </div>
+</div>
+{% endblock %}

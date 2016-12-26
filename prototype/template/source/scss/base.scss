@@ -1,0 +1,76 @@
+@import 'partials/_variables';
+@import 'partials/_mixins';
+@import 'partials/_reset';
+* {
+  font-family: $font-secondary;
+}
+
+body {
+  position: relative;
+  background: $color-1;
+}
+
+h1 {
+  font-family: $font-primary;
+}
+
+.intro {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.intro-title {
+  border-radius: 25px;
+  padding: 50px 100px;
+  text-align: center;
+  h1 {
+    font-size: 75px;
+    margin-bottom: 25px;
+    color: $color-5;
+  }
+  h2 {
+    font-weight: lighter;
+    color: $color-5;
+    @include fade-2();
+  }
+  .icon {
+    @include fade-1();
+  }
+}
+
+.palette-top {
+  display: flex;
+  flex-direction: row;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  div {
+    flex: 1;
+    @for $i from 1 through 5 {
+      &:nth-of-type(#{$i}) {
+        height: $palette-height;
+        background: nth($color-palette-top, $i);
+      }
+    }
+  }
+}
+
+.palette-bottom {
+  display: flex;
+  flex-direction: row;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  div {
+    flex: 1;
+    @for $i from 1 through 5 {
+      &:nth-of-type(#{$i}) {
+        height: $palette-height;
+        background: nth($color-palette-bottom, $i);
+      }
+    }
+  }
+}
