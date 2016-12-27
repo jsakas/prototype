@@ -35,8 +35,9 @@ class Prototype(object):
 
         # set up tornado web server
         self.application = Application([
-            (r"/css/(.*)", StaticFileHandler, {"path": self.project_path + '/source/css'}),
-            (r"/images/(.*)", StaticFileHandler, {"path": self.project_path + '/source/images'}),
+            (r"/css/(.*)", StaticFileHandler, {"path": os.path.join(self.source_path, 'css')}),
+            (r"/images/(.*)", StaticFileHandler, {"path": os.path.join(self.source_path, 'images')}),
+            (r"/js/(.*)", StaticFileHandler, {"path": os.path.join(self.source_path, 'js')}),
             (r"/(?P<language>[a-z]{2}|[a-z]{2}_[A-Z]{2})/.*", TranslatedHandler),
             (r"/.*", DefaultHandler),
         ])
