@@ -91,11 +91,16 @@ class Prototype(object):
 
     def full_asset_path(self, filename, cachebuster=False):
         """
-        
+        Returns the absolute file path of an asset
         """
+        if self.config['build_path'] or self.config['build_path'] == '':
+            path = self.config['build_path']
+        else:
+            self.current_path
+
         if filename[0] == '/':
             filename = filename[1:]
-        return os.path.join(self.current_path, filename)
+        return os.path.join(path, filename)
 
 
     def render_html(self, uri, **kwargs):
