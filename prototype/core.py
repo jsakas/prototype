@@ -8,7 +8,7 @@ import tornado.ioloop
 
 import pylibsass
 
-import os, sys, shutil, json, random, socket, errno, traceback, gettext
+import os, sys, shutil, json, random, socket, errno, traceback, gettext, urlparse
 
 
 JINJA_GENERIC_EXCEPTION = (UndefinedError, TemplateNotFound, TemplatesNotFound)
@@ -264,9 +264,11 @@ class DefaultHandler(RequestHandler, Prototype):
     def get(self):
         try:
             uri = self.__dict__['request'].uri
-            if uri == '/':
-                uri = '/index.html'
-            self.write(self.render_html(uri))
+            parsed = urlparse.urlparse(uri)
+            path = parsed[2]
+            if path == '/':
+                path = '/index.html'
+            self.write(self.render_html(path))
         except Exception as e:
             error_renderer = ErrorRenderer()
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -278,7 +280,11 @@ class TranslatedHandler(RequestHandler, Prototype):
         try:
             uri = self.__dict__['request'].uri
             uri = uri.replace(language + '/', '')
-            self.write(self.render_html(uri, language=language))
+            parsed = urlparse.urlparse(uri)
+            path = parsed[2]
+            if path == '/':
+                path = '/index.html'
+            self.write(self.render_html(path, language=language))
         except Exception as e:
             error_renderer = ErrorRenderer()
             exc_type, exc_obj, exc_tb = sys.exc_info()
