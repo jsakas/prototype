@@ -8,5 +8,6 @@
     "template_extensions": ["html", "txt"],
     "data": "data/",
     "translations": "translations/",
-    "translations_key": "prototype"
+    "translations_key": "prototype",
+    "build_path": ""
 }

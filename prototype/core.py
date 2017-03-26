@@ -8,7 +8,7 @@ import tornado.ioloop
 
 import pylibsass
 
-import os, sys, shutil, json, random, socket, errno, traceback, gettext
+import os, sys, shutil, json, random, socket, errno, traceback, gettext, urlparse
 
 
 JINJA_GENERIC_EXCEPTION = (UndefinedError, TemplateNotFound, TemplatesNotFound)
@@ -35,8 +35,10 @@ class Prototype(object):
 
         # set up tornado web server
         self.application = Application([
-            (r"/css/(.*)", StaticFileHandler, {"path": self.project_path + '/source/css'}),
-            (r"/images/(.*)", StaticFileHandler, {"path": self.project_path + '/source/images'}),
+            (r"/css/(.*)", StaticFileHandler, {"path": os.path.join(self.source_path, 'css')}),
+            (r"/fonts/(.*)", StaticFileHandler, {"path": os.path.join(self.source_path, 'fonts')}),
+            (r"/images/(.*)", StaticFileHandler, {"path": os.path.join(self.source_path, 'images')}),
+            (r"/js/(.*)", StaticFileHandler, {"path": os.path.join(self.source_path, 'js')}),
             (r"/(?P<language>[a-z]{2}|[a-z]{2}_[A-Z]{2})/.*", TranslatedHandler),
             (r"/.*", DefaultHandler),
         ])
@@ -89,11 +91,16 @@ class Prototype(object):
 
     def full_asset_path(self, filename, cachebuster=False):
         """
-        
+        Returns the absolute file path of an asset
         """
+        if self.config.get('build_path') or self.config.get('build_path') == '':
+            path = self.config['build_path']
+        else:
+            path = self.current_path
+ 
         if filename[0] == '/':
             filename = filename[1:]
-        return os.path.join(self.current_path, filename)
+        return os.path.join(path, filename)
 
 
     def render_html(self, uri, **kwargs):
@@ -257,9 +264,11 @@ class DefaultHandler(RequestHandler, Prototype):
     def get(self):
         try:
             uri = self.__dict__['request'].uri
-            if uri == '/':
-                uri = '/index.html'
-            self.write(self.render_html(uri))
+            parsed = urlparse.urlparse(uri)
+            path = parsed[2]
+            if path == '/':
+                path = '/index.html'
+            self.write(self.render_html(path))
         except Exception as e:
             error_renderer = ErrorRenderer()
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -271,7 +280,11 @@ class TranslatedHandler(RequestHandler, Prototype):
         try:
             uri = self.__dict__['request'].uri
             uri = uri.replace(language + '/', '')
-            self.write(self.render_html(uri, language=language))
+            parsed = urlparse.urlparse(uri)
+            path = parsed[2]
+            if path == '/':
+                path = '/index.html'
+            self.write(self.render_html(path, language=language))
         except Exception as e:
             error_renderer = ErrorRenderer()
             exc_type, exc_obj, exc_tb = sys.exc_info()
