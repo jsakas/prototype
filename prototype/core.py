@@ -93,11 +93,11 @@ class Prototype(object):
         """
         Returns the absolute file path of an asset
         """
-        if self.config['build_path'] or self.config['build_path'] == '':
+        if self.config.get('build_path') or self.config.get('build_path') == '':
             path = self.config['build_path']
         else:
-            self.current_path
-
+            path = self.current_path
+ 
         if filename[0] == '/':
             filename = filename[1:]
         return os.path.join(path, filename)
