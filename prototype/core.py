@@ -44,20 +44,34 @@ class Prototype(object):
         self.translations_key = self.config.get('translations_key', '')
         self.port = self.config.get('port', 2000)
 
-        # set up tornado web server
-        self.application = Application([
-            (r"/css/(.*)", StaticFileHandler,
-             {"path": os.path.join(self.source_path, 'css')}),
-            (r"/fonts/(.*)", StaticFileHandler,
-             {"path": os.path.join(self.source_path, 'fonts')}),
-            (r"/images/(.*)", StaticFileHandler,
-             {"path": os.path.join(self.source_path, 'images')}),
-            (r"/js/(.*)", StaticFileHandler,
-             {"path": os.path.join(self.source_path, 'js')}),
-            (r"/(?P<language>[a-z]{2}|[a-z]{2}_[A-Z]{2})/.*",
-             TranslatedHandler),
+
+        # create static file handlers for all sub folders of the source directory
+        # a static file handler has the following format
+        #
+        # (r"/css/(.*)", StaticFileHandler, {"path": os.path.join(self.source_path, 'css')})
+        handlers = []
+        level = 1
+        for root, folders, files in os.walk(self.source_path):
+            if level > 0:
+                for folder in folders:
+                    handlers.append(
+                        (
+                            r"/%s/(.*)" % (folder), 
+                            StaticFileHandler, 
+                            {"path": os.path.join(self.source_path, folder)}
+                        )
+                    )
+            else:
+                break
+            level-=1
+
+        handlers += [
+            (r"/(?P<language>[a-z]{2}|[a-z]{2}_[A-Z]{2})/.*", TranslatedHandler),
             (r"/.*", DefaultHandler),
-        ])
+        ]
+
+        # set up tornado web application
+        self.application = Application(handlers)
 
         # set up jinja template loader
         template_loader = FileSystemLoader(searchpath=self.source_path)
