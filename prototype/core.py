@@ -72,7 +72,7 @@ class Prototype(object):
             tornado.autoreload.start()
             self.application.listen(port)
 
-            print('now serving on port %s...' % port)
+            print('now serving on port 127.0.0.1:%s...' % port)
             tornado.ioloop.IOLoop.instance().start()
         except KeyboardInterrupt as e:
             pass
