@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
 	name='prototype',
- 	version='1.0.1',
+ 	version='1.0.2',
 	description='A static site generator.',
 	url='http://github.com/jsakas/prototype',
 	author='Jon Sakas',
