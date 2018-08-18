@@ -1,6 +1,6 @@
 # Prototype
 
-A static site generator.
+A static site generator written in Python.
 
 ## Features:
 - Jinja Templates
