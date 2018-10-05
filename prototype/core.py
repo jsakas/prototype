@@ -1,14 +1,25 @@
-from jinja2 import Environment, FileSystemLoader, TemplateSyntaxError, TemplateAssertionError, UndefinedError, TemplateNotFound, TemplatesNotFound
+from jinja2 import (Environment, FileSystemLoader,
+                    TemplateSyntaxError,
+                    TemplateAssertionError,
+                    UndefinedError,
+                    TemplateNotFound,
+                    TemplatesNotFound)
 from translations import TranslationManager
 from error import ErrorRenderer
-
 from tornado.web import Application, RequestHandler, StaticFileHandler
 import tornado.autoreload
 import tornado.ioloop
-
 import pylibsass
-
-import os, sys, shutil, json, random, socket, errno, traceback, gettext, urlparse
+import os
+import sys
+import shutil
+import json
+import random
+import socket
+import errno
+import traceback
+import gettext
+import urlparse
 
 
 JINJA_GENERIC_EXCEPTION = (UndefinedError, TemplateNotFound, TemplatesNotFound)
@@ -18,20 +29,21 @@ JINJA_DETAILED_EXCEPTION = (TemplateSyntaxError, TemplateAssertionError)
 class Prototype(object):
     def __init__(self):
         self.project_path = os.getcwd()
-        self.source_path = os.path.join(self.project_path,'source')
-        self.build_path = os.path.join(self.project_path,'build')
-        self.template_path = os.path.join(self.project_path,'source','layouts')
+        self.source_path = os.path.join(self.project_path, 'source')
+        self.build_path = os.path.join(self.project_path, 'build')
+        self.template_path = os.path.join(self.project_path, 'source', 'layouts')
 
         try:
-            config_path = os.path.join(self.project_path,'config.json')
+            config_path = os.path.join(self.project_path, 'config.json')
             config = open(config_path, 'r')
             self.config = json.load(config)
         except Exception as e:
-            print('Fatal Error: config.json missing or corrupt.')
+            print 'Fatal Error: config.json missing or corrupt.'
             raise
 
         self.translations_key = self.config.get('translations_key', '')
         self.port = self.config.get('port', 2000)
+
 
         # create static file handlers for all sub folders of the source directory
         # a static file handler has the following format
@@ -75,32 +87,34 @@ class Prototype(object):
         """
         run the tornado web server and watch for sass changes
         """
-        if port == None:
+        # changed from: if port == None:
+        if port is None:
             port = self.port
 
-        try: 
+        try:
             # watch for sass changes
             pylibsass.watch(
-                os.path.join(self.source_path,'scss'),
-                os.path.join(self.source_path,'css')
+                os.path.join(self.source_path, 'scss'),
+                os.path.join(self.source_path, 'css')
             )
 
-            # setup the server    
+            # setup the server
             tornado.autoreload.add_reload_hook(self.reload_hook)
             tornado.autoreload.start()
             self.application.listen(port)
 
-            print('now serving on port %s...' % port)
+            print 'now serving on port 127.0.0.1:%s...' % port
             tornado.ioloop.IOLoop.instance().start()
         except KeyboardInterrupt as e:
             pass
         except socket.error:
-            print('port %s is already in use.' % (port))
+            print 'port %s is already in use.' % (port)
 
 
     def asset(self, filename, cachebuster=False):
         """
-        for jinja templates, returns the asset specified and optionally applies the cachebuster
+        for jinja templates, returns the asset specified and
+        optionally applies the cachebuster
         """
         if cachebuster:
             return filename + '?ver=' + str(random.getrandbits(10))
@@ -125,7 +139,7 @@ class Prototype(object):
         """
         returns HTML document as a string
         """
-        print('Render HTML :: {}'.format(uri))
+        print 'Render HTML :: {}'.format(uri)
 
         path = self.source_path
         language = kwargs.get('language', False)
@@ -133,15 +147,18 @@ class Prototype(object):
 
         # load the translations
         try:
-            if language: 
-                language = [language.replace('-','_')]
-                locale_path = os.path.join(self.project_path,'translations')
-                translations_path = gettext.find(self.translations_key, locale_path, language)
-                translations = gettext.translation(self.translations_key, locale_path, language, fallback=False)
+            if language:
+                language = [language.replace('-', '_')]
+                locale_path = os.path.join(self.project_path, 'translations')
+                translations_path = gettext.find(self.translations_key,
+                                                 locale_path, language)
+                translations = gettext.translation(self.translations_key,
+                                                   locale_path, language,
+                                                   fallback=False)
             else:
                 translations = False
         except Exception as e:
-            self.handle_generic_exception(e, 'Error loading translations') 
+            self.handle_generic_exception(e, 'Error loading translations')
 
         # try to get rendered HTML
         try: 
@@ -154,18 +171,17 @@ class Prototype(object):
 
             if build:
                 self.jinja_environment.globals['asset'] = self.full_asset_path
-            
             if translations:
                 self.jinja_environment.install_gettext_translations(translations, newstyle=True)
             else:
                 self.jinja_environment.install_null_translations()
 
             # load the file
-            template_file = uri.replace(path,'')
+            template_file = uri.replace(path, '')
             try:
                 template = self.jinja_environment.get_template(template_file)
             except TemplateNotFound as e:
-                print('Cannot locate template {}'.format(template_file))
+                print 'Cannot locate template {}'.format(template_file)
                 return ''
 
             # load data from data folder into custom_data dictionary
@@ -174,22 +190,22 @@ class Prototype(object):
                 for name in files:
                     try:
                         fe = open(os.path.join(root, name))
-                        loaded = json.load(fe) 
+                        loaded = json.load(fe)
                         custom_data[name] = loaded
                     except Exception as e:
-                        self.handle_generic_exception(e, 'Error loading data') 
+                        self.handle_generic_exception(e, 'Error loading data')
 
             # template.render() returns a string which contains the rendered html
             language = language[0] if type(language) == list else 'en_US'
             html_output = template.render(
-                data = custom_data,
-                language = language,
-                config = self.config,
+                data=custom_data,
+                language=language,
+                config=self.config,
             )
 
             return html_output
 
-        except JINJA_GENERIC_EXCEPTION as e: 
+        except JINJA_GENERIC_EXCEPTION as e:
             return self.handle_jinja_generic_exception(e)
         except JINJA_DETAILED_EXCEPTION as e:
             return self.handle_jinja_detailed_exception(e)
@@ -217,12 +233,12 @@ class Prototype(object):
             self.build_language(self.source_path, self.build_path)
 
 
-    def build_language(self, source_path, build_path, language = False):
+    def build_language(self, source_path, build_path, language=False):
         """
         copy a source path and build it into a build
         """
         shutil.copytree(source_path, build_path)
-        try: 
+        try:
             # re-write HTML as jinja2 HTML output
             for path, folders, files in os.walk(build_path):
                 for file in files:
@@ -236,13 +252,14 @@ class Prototype(object):
         """
         save the static file to build directory
         """
-        try: 
+        try:
             file_path = os.path.join(path, file)
             language = kwargs.get('language', False)
 
             html = self.render_html(file_path, build=True, language=language)
             if html is None:
-                raise Exception('Failed to render HTML. Response from Prototype.render_html() is `None`.')
+                raise Exception('Failed to render HTML. Response'
+                                'from Prototype.render_html() is `None`.')
 
             f = open(path + '/' + file, 'w')
             f.write(html.encode('utf-8'))
@@ -251,28 +268,27 @@ class Prototype(object):
             self.handle_generic_exception(e, 'Generate static file error')
 
     def reload_hook(self):
-
-        print('Reload.')
+        print 'Reload.'
 
 
     def get_config(self):
         return self.config
 
     def handle_jinja_generic_exception(self, e):
-        exc_type, exc_obj, exc_tb = sys.exc_info()       
+        exc_type, exc_obj, exc_tb = sys.exc_info()
         error_renderer = ErrorRenderer()
         response = error_renderer.format_html_traceback(e, exc_tb)
         return response
         
     def handle_jinja_detailed_exception(self, e):
-        exc_type, exc_obj, exc_tb = sys.exc_info()       
+        exc_type, exc_obj, exc_tb = sys.exc_info()
         error_renderer = ErrorRenderer()
         response = error_renderer.format_html_traceback(e, exc_tb)
         return response
         
 
     def handle_generic_exception(self, e, msg='Generic Exception'):
-        exc_type, exc_obj, exc_tb = sys.exc_info()       
+        exc_type, exc_obj, exc_tb = sys.exc_info()
         error_renderer = ErrorRenderer()
         response = error_renderer.format_html_traceback(e, exc_tb)
         return response
@@ -308,4 +324,3 @@ class TranslatedHandler(RequestHandler, Prototype):
             exc_type, exc_obj, exc_tb = sys.exc_info()
             response = error_renderer.format_html_traceback(e, exc_tb)
             self.write(response)
-
